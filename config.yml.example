@@ -1,0 +1,6 @@
+quickblox:
+  application_id: 22
+  auth_key:  LNFYqsasda43dVPJ
+  auth_secret: WyXEsdfdLWAe-q
+  server:  api.quickblox.com
+  user_owner_id: 33
