@@ -15,7 +15,6 @@ class Quickblox
     @application_id = config["quickblox"]["application_id"]
     @auth_key = config["quickblox"]["auth_key"]
     @auth_secret = config["quickblox"]["auth_secret"]
-    @user_owner_id = config["quickblox"]["user_owner_id"]
     @server=config["quickblox"]["server"]
     #to remove - for debug
     @user_login=config["quickblox"]["user_login"]
@@ -76,7 +75,7 @@ class Quickblox
     timestamp=Time.now.to_i
     nonce=rand(10000)
     hash = {:application_id => @application_id, :nonce => nonce, :auth_key => @auth_key, :timestamp => timestamp}
-    hash.merge!({:user => {:login => @user_login, :password => @user_password, :owner_id => @user_owner_id}}) if type == 'user' || type == 'user_device'
+    hash.merge!({:user => {:login => @user_login, :password => @user_password}}) if type == 'user' || type == 'user_device'
     hash.merge!({:device => {:platform => @device_platform, :udid => @device_udid}}) if type == 'device' || type == 'user_device'
     normalized= normalize(hash)
     signature = HMAC::SHA1.hexdigest(@auth_secret, normalized)
@@ -130,7 +129,7 @@ class Quickblox
 
   def signup_user(user_params)
     @token = get_token unless @token_type=='app'
-    user_params.merge! "token" => @token, "user[owner_id]" => @user_owner_id
+    user_params.merge! "token" => @token
     normalized= normalize(user_params)
     req = Net::HTTP::Post.new(URI(@users_uri.to_s+".json").path)
     req.body = "#{normalized}"
