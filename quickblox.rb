@@ -30,13 +30,13 @@ class Quickblox
 
   def initialize(options = {})
     configs(options)
-    @auth_uri=URI("http://"+@server.to_s+'/auth.json')
-    @users_uri=URI("http://"+@server.to_s+'/users')
-    @geodata_uri=URI("http://"+@server.to_s+'/geodata')
-    @places_uri=URI("http://"+@server.to_s+'/places')
-    @files_uri=URI("http://"+@server.to_s+'/blobs')
-    @pushtokens_uri=URI("http://"+@server.to_s+'/push_tokens')
-    @gamemodes_uri=URI("http://"+@server.to_s+'/gamemodes')
+    @auth_uri=URI("https://"+@server.to_s+'/auth.json')
+    @users_uri=URI("https://"+@server.to_s+'/users')
+    @geodata_uri=URI("https://"+@server.to_s+'/geodata')
+    @places_uri=URI("https://"+@server.to_s+'/places')
+    @files_uri=URI("https://"+@server.to_s+'/blobs')
+    @pushtokens_uri=URI("https://"+@server.to_s+'/push_tokens')
+    @gamemodes_uri=URI("https://"+@server.to_s+'/gamemodes')
     @token=nil
     @token_type=nil
     @users_count = nil
@@ -484,9 +484,9 @@ class Quickblox
     hash={:notification_channels => "#{channels}", :url => "#{url}"}
     hash.merge! "token" => @token
     normalized= normalize(hash)
-    req = Net::HTTP::Post.new(URI("http://"+@server.to_s+"/subscriptions.json").path)
+    req = Net::HTTP::Post.new(URI("https://"+@server.to_s+"/subscriptions.json").path)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
@@ -495,7 +495,7 @@ class Quickblox
 
   def get_subscriptions
     @token = get_token("user_device") unless @token_type=='user_device'
-    subscriptions = Net::HTTP.get_response(URI("http://"+@server.to_s+"/subscriptions.json?token=#{@token}"))
+    subscriptions = Net::HTTP.get_response(URI("https://"+@server.to_s+"/subscriptions.json?token=#{@token}"))
     JSON.parse(subscriptions.body)
   end
 
@@ -568,9 +568,9 @@ class Quickblox
 
     params.merge! "token" => @token
     normalized = normalize(params)
-    req = Net::HTTP::Post.new(URI("http://"+@server.to_s+"/events.json").path)
+    req = Net::HTTP::Post.new(URI("https://"+@server.to_s+"/events.json").path)
     req.body = "#{normalized}&event[message]=#{to_send}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
@@ -579,7 +579,7 @@ class Quickblox
 
   def get_events(page=1, per_page=10)
     @token = get_token("user_device") unless @token_type=='user_device'
-    file_info = Net::HTTP.get_response(URI("http://"+@server.to_s+"/events.json")+"?token=#{@token}&per_page=#{per_page}&page=#{page}")
+    file_info = Net::HTTP.get_response(URI("https://"+@server.to_s+"/events.json")+"?token=#{@token}&per_page=#{per_page}&page=#{page}")
     JSON.parse(file_info.body)
   end
 
@@ -589,7 +589,7 @@ class Quickblox
     notification=event["notification_channel"]["name"]
     params.merge! "token" => @token
     normalized = normalize(params)
-    req = Net::HTTP::Put.new(URI("http://"+@server.to_s+"/events/#{id}.json").path)
+    req = Net::HTTP::Put.new(URI("https://"+@server.to_s+"/events/#{id}.json").path)
     if message
       if notification=="mpns"
         if message[:type]=="toast"
@@ -655,7 +655,7 @@ class Quickblox
     else
       req.body = "#{normalized}"
     end
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
@@ -672,14 +672,14 @@ class Quickblox
 
   def get_event_by_id(id)
     @token = get_token("user_device") unless @token_type=='user_device'
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/events/#{id}.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/events/#{id}.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
 
   def get_pull_request_list
     @token = get_token("user_device") unless @token_type=='user_device'
-    event = Net::HTTP.get_response(URI("http://"+@server.to_s+"/pull_events.json?token=#{@token}"))
+    event = Net::HTTP.get_response(URI("https://"+@server.to_s+"/pull_events.json?token=#{@token}"))
     JSON.parse(event.body)
   end
 
@@ -720,7 +720,7 @@ class Quickblox
   def get_gamemodes
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/application/gamemodes.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/application/gamemodes.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -737,11 +737,11 @@ class Quickblox
   def create_score(params)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    req = Net::HTTP::Post.new(URI("http://"+@server.to_s+"/scores.json").path)
+    req = Net::HTTP::Post.new(URI("https://"+@server.to_s+"/scores.json").path)
     params.merge! "token" => @token
     normalized = normalize(params)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
@@ -752,11 +752,11 @@ class Quickblox
   def update_score(id, params)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    req = Net::HTTP::Put.new(URI("http://"+@server.to_s+"/scores/#{id}.json").path)
+    req = Net::HTTP::Put.new(URI("https://"+@server.to_s+"/scores/#{id}.json").path)
     params.merge! "token" => @token
     normalized = normalize(params)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
@@ -766,7 +766,7 @@ class Quickblox
   def get_score_by_id(id)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/scores/#{id}.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/scores/#{id}.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -781,7 +781,7 @@ class Quickblox
   def get_scores_for_user(id, sort_by="value", filters=nil, sort=1)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/users/#{id}/scores.json?token=#{@token}&sort=#{sort}&filters=#{filters}&sort_by=#{sort_by}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/users/#{id}/scores.json?token=#{@token}&sort=#{sort}&filters=#{filters}&sort_by=#{sort_by}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -797,7 +797,7 @@ class Quickblox
   def get_average_scores_by_app
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/application/averages.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/application/averages.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -813,11 +813,11 @@ class Quickblox
   def create_gamemodeparameter(params)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    req = Net::HTTP::Post.new(URI("http://"+@server.to_s+"/gamemodeparameters.json").path)
+    req = Net::HTTP::Post.new(URI("https://"+@server.to_s+"/gamemodeparameters.json").path)
     params.merge! "token" => @token
     normalized = normalize(params)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
@@ -827,11 +827,11 @@ class Quickblox
   def update_gamemodeparameter(id, params)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    req = Net::HTTP::Put.new(URI("http://"+@server.to_s+"/gamemodeparameters/#{id}.json").path)
+    req = Net::HTTP::Put.new(URI("https://"+@server.to_s+"/gamemodeparameters/#{id}.json").path)
     params.merge! "token" => @token
     normalized = normalize(params)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
@@ -841,7 +841,7 @@ class Quickblox
   def get_gamemodeparameter_by_id(id)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/gamemodeparameters/#{id}.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/gamemodeparameters/#{id}.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -866,11 +866,11 @@ class Quickblox
   def create_gamemodeparametervalue(params)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    req = Net::HTTP::Post.new(URI("http://"+@server.to_s+"/gamemodeparametervalues.json").path)
+    req = Net::HTTP::Post.new(URI("https://"+@server.to_s+"/gamemodeparametervalues.json").path)
     params.merge! "token" => @token
     normalized = normalize(params)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
@@ -880,11 +880,11 @@ class Quickblox
   def update_gamemodeparametervalue(id, params)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    req = Net::HTTP::Put.new(URI("http://"+@server.to_s+"/gamemodeparametervalues/#{id}.json").path)
+    req = Net::HTTP::Put.new(URI("https://"+@server.to_s+"/gamemodeparametervalues/#{id}.json").path)
     params.merge! "token" => @token
     normalized = normalize(params)
     req.body = "#{normalized}"
-    response=Net::HTTP.start(URI("http://"+@server.to_s).host) do |http|
+    response=Net::HTTP.start(URI("https://"+@server.to_s).host) do |http|
       http.request(req)
     end
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
@@ -894,7 +894,7 @@ class Quickblox
   def get_gamemodeparametervalue_by_id(id)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/gamemodeparametervalues/#{id}.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/gamemodeparametervalues/#{id}.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -902,7 +902,7 @@ class Quickblox
   def get_gamemodeparametervalue_by_score_id(id)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/scores/#{id}/gamemodeparametervalues.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/scores/#{id}/gamemodeparametervalues.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
@@ -910,7 +910,7 @@ class Quickblox
   def get_api_gamemodeparametervalue_by_score_id(score_id, para_id)
     @token = get_token("user") unless @token_type=='user'
     return "ERROR: No user is logged in" unless @user_id
-    response = Net::HTTP.get_response(URI("http://"+@server.to_s+"/scores/#{score_id}/gamemodeparameters/#{para_id}/value.json?token=#{@token}"))
+    response = Net::HTTP.get_response(URI("https://"+@server.to_s+"/scores/#{score_id}/gamemodeparameters/#{para_id}/value.json?token=#{@token}"))
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
     JSON.parse(response.body)
   end
