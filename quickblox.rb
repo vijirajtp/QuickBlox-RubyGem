@@ -138,7 +138,7 @@ class Quickblox
     response=Net::HTTP.start(@users_uri.host) do |http|
       http.request(req)
     end
-    return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "200"
+    return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
     JSON.parse(response.body)
   end
 
