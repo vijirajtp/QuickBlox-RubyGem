@@ -6,6 +6,7 @@ require 'yaml'
 require "uri"
 require "net/http/post/multipart"
 require 'base64'
+require 'pry'
 
 
 class Quickblox
@@ -81,11 +82,15 @@ class Quickblox
     hash.merge!({:device => {:platform => @device_platform, :udid => @device_udid}}) if type == 'device' || type == 'user_device'
     normalized= normalize(hash)
     signature = HMAC::SHA1.hexdigest(@auth_secret, normalized)
+
     req = Net::HTTP::Post.new(@auth_uri.path)
     req.body = "#{normalized}&signature=#{signature}"
-    response = Net::HTTP.start(@auth_uri.host, @auth_uri.port) do |http|
-      http.request(req)
-    end
+
+    http = Net::HTTP.new(@auth_uri.host, @auth_uri.port)
+    http.use_ssl = true 
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    response = http.request(req)
+
     return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
     @token_type=type
     @user_id=JSON.parse(response.body)["session"]["user_id"]
