@@ -6,7 +6,6 @@ require 'yaml'
 require "uri"
 require "net/http/post/multipart"
 require 'base64'
-require 'pry'
 
 
 class Quickblox
