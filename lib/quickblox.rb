@@ -35,6 +35,8 @@ class Quickblox
     @files_uri=URI("http://"+@server.to_s+'/blobs')
     @pushtokens_uri=URI("http://"+@server.to_s+'/push_tokens')
     @gamemodes_uri=URI("http://"+@server.to_s+'/gamemodes')
+    @login_uri=URI("http://"+@server.to_s+'/login.json')
+    @dialog_uri=URI("http://"+@server.to_s+'/chat/Dialog')
     @token=nil
     @token_type=nil
     @users_count = nil
@@ -93,6 +95,32 @@ class Quickblox
   def get_user_id
     @token = get_token("user") unless @token_type=='user'
     @user_id
+  end
+
+  ## Created by Vijiraj ##
+  def login(auth_params)
+    @token = get_token unless @token_type=='app'
+    normalized= normalize(auth_params)
+    req = Net::HTTP::Post.new(@login_uri.path)
+    req['QB-Token'] = @token
+    req.body = "#{normalized}"
+    response = Net::HTTP.start(@login_uri.host, @login_uri.port) do |http|
+      http.request(req)
+    end
+    return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
+  end
+
+  ## Created by Vijiraj ##
+  def create_chat_dialog(dialog_params)
+    @token = get_token unless @token_type=='app'
+    normalized= normalize(dialog_params)
+    req = Net::HTTP::Post.new(@dialog_uri.path)
+    req['QB-Token'] = @token
+    req.body = "#{normalized}"
+    response = Net::HTTP.start(@dialog_uri.host, @dialog_uri.port) do |http|
+      http.request(req)
+    end
+    return {:response_code => response.code, :response_header => response, :response_body => (JSON.parse(response.body) rescue nil)} unless response.code == "201"
   end
 
   def get_token(type = 'app')
