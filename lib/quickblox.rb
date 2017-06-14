@@ -187,6 +187,8 @@ class Quickblox
     normalized= normalize(user_params)
     req = Net::HTTP::Post.new(URI(@users_uri.to_s+".json").path)
     req.body = "#{normalized}"
+    req.use_ssl = true
+    req.verify_mode = OpenSSL::SSL::VERIFY_NONE
     response=Net::HTTP.start(@users_uri.host) do |http|
       http.request(req)
     end
